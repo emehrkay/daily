@@ -1,0 +1,17 @@
+
+User
+* register <post>
+* login <post>
+* logout <post|get>
+* profile <get|put>
+* day/:id/(:day<Today>) <get>
+
+List
+* list/:id <get|post|put|delete> -- limited to user_id
+
+Task
+* task/:id <get|post|put|delete>
+
+Comment
+* comment/:id <get|post|put|delete> 
+* comments/:list_id <get>

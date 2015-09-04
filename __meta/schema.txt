@@ -1,0 +1,51 @@
+# All records have an id, created<DateTime>, and modified<DateTime> fields
+
+
+Vertices:
+----------------
+User
+* name
+* email
+* password
+
+List
+* name
+* user_id
+* active
+* parent_list_id
+
+Item
+* content<Text>
+* content_type<Enum>
+* task<Boolean>
+* user_id
+* active
+* list_id
+
+Tag
+* name
+
+ContentType
+* name
+* description
+
+Comment
+* content<Text>
+
+
+Edges:
+----------------
+UserList
+
+ListItem
+
+ListItemContentType
+* unique=True
+
+ListItemTag
+* unique=True
+
+ListItemComment
+
+ListItemParent
+* unique=True
