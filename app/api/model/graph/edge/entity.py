@@ -8,25 +8,33 @@ class BaseEdge(Edge):
     pass
 
 
+class DayList(BaseEdge):
+    pass
+
+
 class HasComment(BaseEdge):
-    _node_type = TYPE['has_comment']
+    pass
 
 
 class HasItem(BaseEdge):
-    _node_type = TYPE['has_item']
+    pass
 
 
 class HasList(BaseEdge):
-    _node_type = TYPE['has_list']
+    pass
 
 
 class HasTag(BaseEdge):
-    _node_type = TYPE['has_tag']
+    pass
 
 
 class IsContent(BaseEdge):
-    _node_type = TYPE['is_content']
+    pass
+
+
+class IsOwner(BaseEdge):
+    pass
 
 
 class UserList(BaseEdge):
-    _node_type = TYPE['USER_LIST']
+    pass

@@ -1,17 +1,19 @@
+Auth
+* /login <get|post>
+* /logout <get|post>
+
 
 User
-* register <post>
-* login <post>
-* logout <post|get>
-* profile <get|put>
-* day/:id/(:day<Today>) <get>
+* /register <post>
+* /user/:id <get|put>
+
 
 List
-* list/:id <get|post|put|delete> -- limited to user_id
+* /list/:id <get|post|put|delete> -- limited to user_id
+* /list/:id/item(/:id) <get|post|put|delete>
+* /list/:id/item/:id/promote <post|delete>
+* /list/:id/comment(/:id) <get|post|put|delete>
 
-Task
-* task/:id <get|post|put|delete>
 
-Comment
-* comment/:id <get|post|put|delete> 
-* comments/:list_id <get>
+Day
+* /day(/:epoch_day) <get>

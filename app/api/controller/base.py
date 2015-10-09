@@ -11,6 +11,9 @@ class BaseHandler(web.RequestHandler):
     def __init__(self, application, request, **kwargs):
         super(BaseHandler, self).__init__(application, request, **kwargs)
 
+    def get_user(self):
+        return None
+
     def get_arg(self, name=None, default=None):
         """
         method used to get the argument from the request
@@ -25,7 +28,7 @@ class BaseHandler(web.RequestHandler):
 
         for k in req:
             body[k] = req[k][0]
-
+        print('REQ', req)
         body = body.get(b'body', b'{}').decode("utf-8")
         body = json.loads(body)
 
@@ -36,3 +39,23 @@ class BaseHandler(web.RequestHandler):
                 body = self.get_argument(name, default)
 
         return body
+
+    def get_model_by_id(self, _id, entity='v', enabled=True):
+        return get_model_by_id(_id, entity, enabled)
+
+
+
+def get_model_by_id(_id, entity='v', enabled=True):
+    """
+    utility method used to get an entity (vertex or edge)
+    by its _id value
+    """
+    g = MAPPER.gremlin
+
+    getattr(g, entity.lower().upper())(str(_id))
+
+    if enabled is not None:
+        g.has("'enabled'", str(enabled).lower())
+
+    return MAPPER.query(gremlin=g).first()
+

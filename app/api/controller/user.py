@@ -2,16 +2,14 @@ from api.bootstrap import APPLICATION, MAPPER
 from api.controller.base import BaseHandler
 
 
-class Test(BaseHandler):
+class User(BaseHandler):
 
-    def get(self):
-        self.write('testing')
+    def put(self, user_id):
+        pass
 
 
 ROUTES = (
-    (r'/', Test),
+    (r'/user/(\w+)', User),
 )
 
 APPLICATION.add_handlers(".*$", ROUTES)
-
-print(Test)
