@@ -70,22 +70,28 @@ class TagMapper(BaseMapper):
 class UserMapper(BaseMapper):
     model = User
 
-    def login(self, user, invalidate_sessions=False):
-        login = LoginLog()
+    def logout(self, user):
+        g = self.mapper.start(user)
+        # TODO: change this to a where class once gremlinpy is upadted to support predicates
+        # we only want to modify the vertices who have a valid_until value
+        # outE('_label', 'logged_in').inV().where(__.values('valid_until').is(gt(0)))
+        where = "__.values('valid_until').is(gt(0))"
+        g.outE("'_label'", 'logged_in').inV().unbound('where', where)
+        sessions = self.mapper.query(gremlin=g)
 
-        if invalidate_sessions:
-            g = self.mapper.start(user)
-            # TODO: change this to a where class once gremlinpy is upadted to support predicates
-            # we only want to modify the vertices who have a valid_until value
-            # outE('_label', 'logged_in').inV().where(__.values('valid_until').is(gt(0)))
-            where = "__.values('valid_until').is(gt(0))"
-            g.outE("'_label'", 'logged_in').inV().unbound('where', where)
-            sessions = self.mapper.query(gremlin=g)
-
+        if len(sessions):
             for sess in sessions:
                 sess['valid_until'] = 0
                 sess['session_id'] = ''
                 self.mapper.save(sess)
+
+            self.mapper.send()
+
+    def login(self, user, invalidate_sessions=False):
+        login = LoginLog()
+
+        if invalidate_sessions:
+            self.logout(user)
 
         edge = self.mapper.connect(user, login, edge_model=LoggedIn)
 

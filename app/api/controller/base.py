@@ -67,8 +67,8 @@ class BaseHandler(web.RequestHandler):
         try:
             session_id = self.request.headers.get('AUTHORIZATION', None)
             g = self.mapper.gremlin
-            g.V().has('_label', 'login_log').has('session_id', session_id)
-            g.inE('_label', 'logged_in').inV()
+            g.V().has('"_label"', 'login_log').has('"session_id"', session_id)
+            g.inE('"_label"', 'logged_in').outV()
             
             return self.mapper.query(gremlin=g).first()
         except Exception as e:

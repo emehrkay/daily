@@ -1,6 +1,7 @@
 from api.bootstrap import APPLICATION, MAPPER
 from api.controller.base import BaseHandler
 from api.model.graph.vertex import User
+from api.util import authorized
 
 
 class Login(BaseHandler):
@@ -33,8 +34,21 @@ class Login(BaseHandler):
 
 class Logout(BaseHandler):
 
-    def put(self, user_id):
-        pass
+    @authorized
+    def put(self):
+        errors = []
+        status = 200
+
+        try:
+            user = self.get_user()
+            print(user, user.data)
+            self.mapper.logout(user)
+        except Exception as e:
+            print(e)
+            errors.append('There was an error')
+            status = 500
+
+        self.response(errors=errors, status=status)
 
 
 class Registration(BaseHandler):
