@@ -7,7 +7,7 @@ from gizmo.event import MapperMixin
 from gremlinpy.gremlin import Gremlin, Function
 from gremlinpy.statement import GetEdge
 
-from . import TYPE, User, Item, List, Tag, Day
+from . import User, Item, List, Tag, Day, LoginLog
 from .mixin import TagMixin
 from api.model.graph.edge.entity import *
 
@@ -69,3 +69,33 @@ class TagMapper(BaseMapper):
 
 class UserMapper(BaseMapper):
     model = User
+
+    def login(self, user, invalidate_sessions=False):
+        login = LoginLog()
+
+        if invalidate_sessions:
+            g = self.mapper.start(user)
+            # TODO: change this to a where class once gremlinpy is upadted to support predicates
+            # we only want to modify the vertices who have a valid_until value
+            # outE('_label', 'logged_in').inV().where(__.values('valid_until').is(gt(0)))
+            where = "__.values('valid_until').is(gt(0))"
+            g.outE("'_label'", 'logged_in').inV().unbound('where', where)
+            sessions = self.mapper.query(gremlin=g)
+
+            for sess in sessions:
+                sess['valid_until'] = 0
+                sess['session_id'] = ''
+                self.mapper.save(sess)
+
+        edge = self.mapper.connect(user, login, edge_model=LoggedIn)
+
+        self.mapper.save(edge).send()
+
+        return login
+
+    def get_by_email(self, email):
+        g = self.mapper.gremlin
+
+        g.V().has('_label', 'user').has('email', email)
+
+        return self.mapper.query(gremlin=g).first()

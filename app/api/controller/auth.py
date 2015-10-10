@@ -1,5 +1,6 @@
 from api.bootstrap import APPLICATION, MAPPER
 from api.controller.base import BaseHandler
+from api.model.graph.vertex import User
 
 
 class Login(BaseHandler):
@@ -11,10 +12,23 @@ class Login(BaseHandler):
         self.write('testing')
 
     def post(self):
+        errors = []
+        data = {}
         email = self.get_arg('email')
         password = self.get_arg('password')
+        g = self.mapper.gremlin.V().has('"email"', email).has('"password"', password)
+        # import pudb; pu.db
+        try:
+            user = self.mapper.query(gremlin=g).first()
+            print('UXER', user, user.data)
+            login = self.mapper.login(user, True)
+            data['session_id'] = login['session_id']
+        except Exception as e:
+            print(self.mapper)
+            print(e)
+            errors.append('There was an error logging in')
 
-        print(email, password)
+        self.response(errors=errors, data=data)
 
 
 class Logout(BaseHandler):

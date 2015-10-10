@@ -1,7 +1,7 @@
 from gizmo.entity import Vertex
 from gizmo.field import String, Boolean, DateTime, Float, List, Integer
 
-from . import TYPE
+from . import get_a_uuid
 
 
 class BaseVertex(Vertex):
@@ -33,6 +33,11 @@ class List(BaseVertex):
     name = String()
     active = Boolean(True)
     order = Integer(value=0)
+
+
+class LoginLog(BaseVertex):
+    session_id = String(value=get_a_uuid)
+    valid_until = DateTime()
 
 
 class Tag(BaseVertex):

@@ -16,6 +16,6 @@ class TagMixin(object):
 
     def get_tags(self, entity):
         trav = self.mapper.start(entity)
-        trav.out('has_tag')
+        trav.outV('has_tag')
 
         return self.mapper.query(gremlin=trav).data

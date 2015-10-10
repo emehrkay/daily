@@ -10,6 +10,7 @@ class BaseHandler(web.RequestHandler):
 
     def __init__(self, application, request, **kwargs):
         super(BaseHandler, self).__init__(application, request, **kwargs)
+        self.mapper = self.application.mapper
 
     def get_user(self):
         return None
@@ -28,7 +29,7 @@ class BaseHandler(web.RequestHandler):
 
         for k in req:
             body[k] = req[k][0]
-        print('REQ', req)
+
         body = body.get(b'body', b'{}').decode("utf-8")
         body = json.loads(body)
 
@@ -43,6 +44,35 @@ class BaseHandler(web.RequestHandler):
     def get_model_by_id(self, _id, entity='v', enabled=True):
         return get_model_by_id(_id, entity, enabled)
 
+    def response(self, data=None, message=None, status=200, errors=None):
+        if not data:
+            data = {}
+
+        if not message:
+            message = ''
+
+        if not errors:
+            errors = []
+
+        json = {
+            'status': status,
+            'message': message,
+            'errors': errors,
+            'data': data,
+        }
+
+        self.write(json)
+
+    def get_user(self):
+        try:
+            session_id = self.request.headers.get('AUTHORIZATION', None)
+            g = self.mapper.gremlin
+            g.V().has('_label', 'login_log').has('session_id', session_id)
+            g.inE('_label', 'logged_in').inV()
+            
+            return self.mapper.query(gremlin=g).first()
+        except Exception as e:
+            return None
 
 
 def get_model_by_id(_id, entity='v', enabled=True):

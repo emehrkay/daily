@@ -1,8 +1,6 @@
 from gizmo.entity import Edge
 from gizmo.field import String, Boolean, DateTime, Float, List
 
-from . import TYPE
-
 
 class BaseEdge(Edge):
     pass
@@ -33,6 +31,10 @@ class IsContent(BaseEdge):
 
 
 class IsOwner(BaseEdge):
+    pass
+
+
+class LoggedIn(BaseEdge):
     pass
 
 
