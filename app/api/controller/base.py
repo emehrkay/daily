@@ -24,14 +24,17 @@ class BaseHandler(web.RequestHandler):
 
 
         """
-        req = urlparse.parse_qs(self.request.body)
-        body = {}
+        try:
+            req = urlparse.parse_qs(self.request.body)
+            body = {}
 
-        for k in req:
-            body[k] = req[k][0]
+            for k in req:
+                body[k] = req[k][0]
 
-        body = body.get(b'body', b'{}').decode("utf-8")
-        body = json.loads(body)
+            body = body.get(b'body', b'{}').decode("utf-8")
+            body = json.loads(body)
+        except:
+            body = {}
 
         if name:
             body = body.get(name, None)

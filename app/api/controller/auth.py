@@ -1,10 +1,14 @@
+import sys
+
 from api.bootstrap import APPLICATION, MAPPER
 from api.controller.base import BaseHandler
 from api.model.graph.vertex import User
 from api.util import authorized
 
+from gizmo.error import GizmoException
 
-class Login(BaseHandler):
+
+class LoginHandler(BaseHandler):
 
     def get(self):
         """utility method used to check if the current
@@ -21,18 +25,28 @@ class Login(BaseHandler):
         # import pudb; pu.db
         try:
             user = self.mapper.query(gremlin=g).first()
+            print("\n\n\n\n")
             print('UXER', user, user.data)
+            print("\n\n\n\n")
             login = self.mapper.login(user, True)
             data['session_id'] = login['session_id']
         except Exception as e:
             print(self.mapper)
             print(e)
-            errors.append('There was an error logging in')
+            errors.append('\n\n\n\n\n\n\n\n------------------------There was an error logging in')
 
         self.response(errors=errors, data=data)
 
 
-class Logout(BaseHandler):
+class LogoutHandler(BaseHandler):
+
+    @authorized
+    def get(self):
+        self.put()
+
+    @authorized
+    def post(self):
+        self.put()
 
     @authorized
     def put(self):
@@ -41,26 +55,40 @@ class Logout(BaseHandler):
 
         try:
             user = self.get_user()
-            print(user, user.data)
             self.mapper.logout(user)
         except Exception as e:
-            print(e)
             errors.append('There was an error')
             status = 500
 
         self.response(errors=errors, status=status)
 
 
-class Registration(BaseHandler):
+class RegistrationHandler(BaseHandler):
 
     def post(self):
-        pass
+        data = {
+            'email': self.get_arg('email'),
+            'password': self.get_arg('password'),
+        }
+        errors = []
+        res_data = {}
+        status = 200
+
+        try:
+            user = self.mapper.create_model(data=data, model_class=User)
+            self.mapper.save(user).send()
+            res_data = user.data
+        except GizmoException as e:
+            status = 400
+            errors = e.errors
+
+        self.response(errors=errors, data=res_data, status=status)
 
 
 ROUTES = (
-    (r'/login', Login),
-    (r'/logout', Logout),
-    (r'/register', Registration),
+    (r'/login', LoginHandler),
+    (r'/logout', LogoutHandler),
+    (r'/register', RegistrationHandler),
 )
 
 APPLICATION.add_handlers(".*$", ROUTES)
