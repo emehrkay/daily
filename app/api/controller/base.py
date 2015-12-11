@@ -47,9 +47,9 @@ class BaseHandler(web.RequestHandler):
     def get_model_by_id(self, _id, entity='v', enabled=True):
         return get_model_by_id(_id, entity, enabled)
 
-    def response(self, data=None, message=None, status=200, errors=None):
+    def response(self, data=None, message=None, status_code=200, errors=None):
         if not data:
-            data = {}
+            data = []
 
         if not message:
             message = ''
@@ -58,12 +58,13 @@ class BaseHandler(web.RequestHandler):
             errors = []
 
         json = {
-            'status': status,
+            'server_time': datetime.datetime.utcnow().isoformat(),
             'message': message,
             'errors': errors,
             'data': data,
         }
 
+        self.set_status(status_code)
         self.write(json)
 
     def get_user(self):
