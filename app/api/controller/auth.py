@@ -1,10 +1,14 @@
+import sys
+
 from api.bootstrap import APPLICATION, MAPPER
 from api.controller.base import BaseHandler
 from api.model.graph.vertex import User
 from api.util import authorized
 
+from gizmo.error import GizmoException
 
-class Login(BaseHandler):
+
+class LoginHandler(BaseHandler):
 
     def get(self):
         """utility method used to check if the current
@@ -29,7 +33,15 @@ class Login(BaseHandler):
         self.response(errors=errors, data=data)
 
 
-class Logout(BaseHandler):
+class LogoutHandler(BaseHandler):
+
+    @authorized
+    def get(self):
+        self.put()
+
+    @authorized
+    def post(self):
+        self.put()
 
     @authorized
     def put(self):
@@ -46,16 +58,32 @@ class Logout(BaseHandler):
         self.response(errors=errors, status=status)
 
 
-class Registration(BaseHandler):
+class RegistrationHandler(BaseHandler):
 
     def post(self):
-        pass
+        data = {
+            'email': self.get_arg('email'),
+            'password': self.get_arg('password'),
+        }
+        errors = []
+        res_data = {}
+        status = 200
+
+        try:
+            user = self.mapper.create_model(data=data, model_class=User)
+            self.mapper.save(user).send()
+            res_data = user.data
+        except GizmoException as e:
+            status = 400
+            errors = e.errors
+
+        self.response(errors=errors, data=res_data, status=status)
 
 
 ROUTES = (
-    (r'/login', Login),
-    (r'/logout', Logout),
-    (r'/register', Registration),
+    (r'/login', LoginHandler),
+    (r'/logout', LogoutHandler),
+    (r'/register', RegistrationHandler),
 )
 
 APPLICATION.add_handlers(".*$", ROUTES)

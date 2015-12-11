@@ -3,18 +3,19 @@ from api.controller.base import BaseHandler
 from api.util import authorized
 
 
-class User(BaseHandler):
+class UserHandler(BaseHandler):
 
     @authorized
     def get(self, user_id):
         print('Authorized', user_id)
 
+    @authorized
     def put(self, user_id):
         pass
 
 
 ROUTES = (
-    (r'/user/(\w+)', User),
+    (r'/user/(\w+)', UserHandler),
 )
 
 APPLICATION.add_handlers(".*$", ROUTES)

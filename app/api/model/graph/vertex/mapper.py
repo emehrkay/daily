@@ -69,6 +69,8 @@ class TagMapper(BaseMapper):
 
 class UserMapper(BaseMapper):
     model = User
+    unique_fields = ('email',)
+    error_on_non_unique = True
 
     def logout(self, user):
         g = self.mapper.start(user)

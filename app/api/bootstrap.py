@@ -26,6 +26,6 @@ class Application(web.Application):
 
 
 REQUEST = Async(options.rexster_host, options.rexster_graph, port=options.rexster_port)
-GREMLIN = Gremlin()
+GREMLIN = Gremlin(options.rexster_graph)
 MAPPER = Mapper(REQUEST, GREMLIN, auto_commit=options.rexster_auto_commit)
 APPLICATION = Application()
