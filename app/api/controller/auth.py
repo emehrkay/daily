@@ -58,32 +58,9 @@ class LogoutHandler(BaseHandler):
         self.response(errors=errors, status=status)
 
 
-class RegistrationHandler(BaseHandler):
-
-    def post(self):
-        data = {
-            'email': self.get_arg('email'),
-            'password': self.get_arg('password'),
-        }
-        errors = []
-        res_data = {}
-        status = 200
-
-        try:
-            user = self.mapper.create_model(data=data, model_class=User)
-            self.mapper.save(user).send()
-            res_data = user.data
-        except GizmoException as e:
-            status = 400
-            errors = e.errors
-
-        self.response(errors=errors, data=res_data, status=status)
-
-
 ROUTES = (
     (r'/login', LoginHandler),
     (r'/logout', LogoutHandler),
-    (r'/register', RegistrationHandler),
 )
 
 APPLICATION.add_handlers(".*$", ROUTES)

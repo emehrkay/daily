@@ -4,9 +4,15 @@ import urllib.parse as urlparse
 
 from tornado import web, escape
 from tornado.options import options
+from gizmo.error import EntityException
+
+
+class Error(Exception):
+    errors = []
 
 
 class BaseHandler(web.RequestHandler):
+    request_fields = {}
 
     def __init__(self, application, request, **kwargs):
         super(BaseHandler, self).__init__(application, request, **kwargs)
@@ -46,6 +52,29 @@ class BaseHandler(web.RequestHandler):
 
     def get_model_by_id(self, _id, entity='v', enabled=True):
         return get_model_by_id(_id, entity, enabled)
+
+    def get_data(self):
+        errors = []
+        data = {}
+        req = self.request_fields.get('required', {})
+        opt = self.request_fields.get('optional', {})
+
+        for field in req:
+            val = self.get_arg(field)
+
+            if not val:
+                err = '%s field is required' % field
+                errors.append(err)
+            else:
+                data[field] = val
+
+        for field in opt:
+            data[field] = self.get_arg(field)
+
+        if len(errors):
+            raise EntityException(errors=errors)
+
+        return data
 
     def response(self, data=None, message=None, status_code=200, errors=None):
         if not data:
